@@ -2,6 +2,8 @@
 
 Turn comics, webtoons, PDFs, and text into **graded Chinese reading practice (HSK 1–6)**.
 
+![An English webtoon panel and the same panel rewritten into HSK 3 Chinese](docs/images/before-after.jpg)
+
 Give it a manga/manhua/webtoon chapter (a URL, uploaded images, a PDF, or an HTML file) and a target HSK level. It reads the text off each page, rewrites it using only vocabulary at or below that level, paints the new text back onto the artwork, and gives you an interactive reader with pinyin tooltips and an original ↔ simplified toggle.
 
 Source pages don't have to be Chinese. Chinese is **simplified in place**. **English, Japanese, and Korean** comics are **translated into leveled Chinese**, so learners can read series they already know.
