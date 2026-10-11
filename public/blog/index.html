@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HSK Manga: Turning Manga into Beginner-Level Chinese</title>
+  <meta name="description" content="A technical overview of how HSK Manga turns manga chapters into graded Chinese readers: OCR on manga pages, logit-bias simplification, and text inpainting.">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23d9683f'/%3E%3Cg fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h5a3 3 0 0 1 3 3v10a2.2 2.2 0 0 0-2.2-2.2H4z'/%3E%3Cpath d='M20 6h-5a3 3 0 0 0-3 3v10a2.2 2.2 0 0 1 2.2-2.2H20z'/%3E%3C/g%3E%3C/svg%3E">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://hskmanga.com/blog/">
+  <meta property="og:title" content="HSK Manga: Turning Manga into Beginner-Level Chinese">
+  <meta property="og:description" content="How manga chapters become graded Chinese readers: OCR on manga pages, logit-bias simplification, and text inpainting.">
+  <meta property="og:image" content="https://hskmanga.com/blog/img/hero-before-after.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Nunito:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+
+  <style>
+    /* styles.css doesn't reset the brand anchor (the landing page does it with
+       a global a{} rule); scope the same reset here. */
+    .top-bar .brand { color: inherit; text-decoration: none; }
+
+    .blog-wrap { max-width: 720px; margin: 0 auto; padding: 56px 22px 80px; }
+
+    .blog-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px; border: 1px solid var(--border);
+      border-radius: 999px; font-size: 13px; color: var(--text-2);
+      background: var(--panel); font-weight: 700; margin-bottom: 22px;
+    }
+    .blog-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+    .blog-wrap h1 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(32px, 4.6vw, 46px);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      font-weight: 500;
+      margin-bottom: 14px;
+    }
+    .byline {
+      font-size: 14px; color: var(--muted); font-weight: 600;
+      margin-bottom: 36px;
+    }
+    .byline a { color: var(--accent-h); text-decoration: none; }
+    .byline a:hover { text-decoration: underline; }
+
+    .blog-wrap h2 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 28px; font-weight: 500;
+      letter-spacing: -0.015em; line-height: 1.15;
+      margin: 46px 0 14px;
+    }
+    .blog-wrap h3 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 21px; font-weight: 500;
+      margin: 32px 0 10px;
+    }
+    .blog-wrap p {
+      font-size: 16px; line-height: 1.7; color: var(--text);
+      margin-bottom: 16px;
+    }
+    .blog-wrap p a { color: var(--accent-h); text-decoration: underline; font-weight: 600; }
+
+    /* Figures sit on a fixed light panel so transparent diagrams stay
+       readable in dark mode too. */
+    .blog-wrap figure { margin: 26px 0; }
+    .fig-panel {
+      background: #fcfaf6;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .fig-panel img { width: 100%; display: block; border-radius: 6px; }
+    .blog-wrap figcaption {
+      font-size: 13.5px; color: var(--muted); line-height: 1.55;
+      margin-top: 10px; padding: 0 6px;
+    }
+
+    /* Try-free pill — same as the about page's local styles. */
+    .top-bar-cta {
+      display: inline-flex; align-items: center;
+      background: var(--accent); color: #fff;
+      padding: 9px 18px; border-radius: 999px;
+      font: inherit; font-size: 14px; font-weight: 700;
+      text-decoration: none;
+      transition: background .15s, transform .15s;
+    }
+    .top-bar-cta:hover { background: var(--accent-h); transform: translateY(-1px); }
+
+    @media (max-width: 640px) {
+      .blog-wrap { padding: 36px 18px 60px; }
+      .fig-panel { padding: 8px; }
+      .top-bar-cta { padding: 8px 14px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+<script>
+  var t = localStorage.getItem('theme');
+  if (t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches))
+    document.body.classList.add('dark');
+</script>
+
+<header class="top-bar">
+  <a class="brand" href="/" aria-label="HSK Manga home">
+    <span class="brand-mark">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    </span>
+    <span class="brand-name">HSK Manga</span>
+  </a>
+  <a class="top-bar-cta" href="/start">Try free</a>
+</header>
+
+<main class="blog-wrap">
+
+  <span class="blog-eyebrow"><span class="dot"></span> Blog</span>
+
+  <h1>HSK Manga: Turning Manga into Beginner-Level Chinese</h1>
+  <p class="byline">By <a href="/about">Jerry Rao</a> · August 2026</p>
+
+  <p>
+    My brother has been learning Chinese for years. He reads a lot of English-translated
+    manhua, but when he tried reading the Chinese original, he grew frustrated. He still
+    couldn't parse many sentences and found himself spending more time looking up
+    definitions than actually reading the text! Turns out this is a fairly normal
+    experience. Research shows that you need to know about 95% of the words to follow
+    text with assistance and 98% to read it comfortably
+    (<a href="https://nflrc.hawaii.edu/rfl/item/43" target="_blank" rel="noopener">Hu &amp; Nation, 2000</a>).
+  </p>
+
+  <p>
+    One solution for this is graded readers, hand-written text designed to target
+    specific HSK levels (HSK is the standard 1&ndash;9 scale of Chinese proficiency). But
+    writing them by hand doesn't scale, and engaging graded text is hard to come by.
+    That's why I built <a href="/">HSK Manga</a>, which is free for anyone to use. It
+    takes manga that already exists online and rewrites the dialogue just how a graded
+    reader would. You pick an HSK level from 1 to 4, and every line in the chapter gets
+    rewritten to that level.
+  </p>
+
+  <figure>
+    <div class="fig-panel">
+      <img src="img/hero-before-after.jpg" alt="Before and after: a manga page turned into an HSK reader">
+    </div>
+  </figure>
+
+  <p>
+    I've been building HSK Manga for the past 6 months, as a junior in high school. In
+    this post, I'll go over the three most important stages in its pipeline.
+  </p>
+
+  <figure>
+    <div class="fig-panel">
+      <img src="img/pipeline-v2.png" alt="The pipeline, with the three stages this post covers highlighted">
+    </div>
+  </figure>
+
+  <h2>Extracting text</h2>
+
+  <p>
+    Before I can simplify anything, I need the dialogue as actual text. Manga pages have
+    text embedded into the images, so I'm forced to use optical character recognition
+    (OCR), which is software that reads text out of an image. The one I use is
+    PaddleOCR, and getting it to work on manga pages requires implementation beyond the
+    base software.
+  </p>
+
+  <h3>OCR issues</h3>
+
+  <p>
+    If you run OCR on a manga page, it collects every single piece of text it can find,
+    useful or not. Useless text is either background text or heavily stylized SFX (the
+    sound-effect lettering drawn into the art). Capturing this text is bad because
+    nobody reads it in the first place, and hand-drawn characters are really hard to
+    render in a way that will match the art. I solved this by building a list of filters
+    that use information from PaddleOCR (bounding-box dimensions, chroma, rotation, and
+    confidence level) to drop text that shows clear signs of being unnecessary, highly
+    stylized, or both. Getting these filters right took hundreds of sample chapters
+    because of how hard it can be to differentiate between real dialogue and useless
+    text.
+  </p>
+
+  <p>
+    Another issue with OCR is that it extracts text line by line, so a single speech
+    bubble comes back as several fragments. This is bad because manga dialogue is split
+    into speech bubbles, not lines. The solution is similar to how I filter out
+    unnecessary text: I built a function that joins bounding boxes back together when
+    certain requirements are met (roughly, when boxes are close and aligned enough to be
+    the same bubble).
+  </p>
+
+  <figure>
+    <div class="fig-panel">
+      <img src="img/ocr-detection-v2.webp" alt="OCR detections on a real page: five raw boxes, three after filtering, one after merging">
+    </div>
+    <figcaption>
+      A real page from the sample chapter. OCR returns five boxes: three lines of
+      dialogue and the two sound effects (喔耶, 啊啊). The sound effects get dropped and
+      the three remaining lines get merged back into the single bubble they came from.
+    </figcaption>
+  </figure>
+
+  <p>All of this lets me extract the exact pieces of text I want to simplify.</p>
+
+  <h2>Simplification</h2>
+
+  <p>
+    When I started this project, I assumed getting the AI to simplify text would be
+    really easy. All I had to do was write a great prompt, and the AI would do the rest.
+    Through lots of testing, prompt changes, and some research into how others handled
+    the same problem, I concluded that prompt engineering hits a ceiling on
+    simplification quality. AI models are great at retaining meaning and grammar during
+    simplification, but they lack a firm grasp of the different HSK levels, and they
+    don't simplify text enough.
+  </p>
+
+  <p>
+    To solve this, I tried creating a restriction where the model could only write words
+    I allowed, using a grammar format called GBNF. In my case, that meant only low-level
+    HSK words. But it was too strong of a constraint since there are many cases where a
+    word does not have a simpler alternative. A common example of this would be a
+    person's name. This is why I moved to a softer inference-time setting called logit
+    bias. Tokens are the sub-word chunks a model actually generates, and logit bias lets
+    you nudge the model's probability for specific tokens up or down. That let me make
+    simpler words more likely and harder words less likely, without banning anything
+    outright.
+  </p>
+
+  <figure>
+    <div class="fig-panel">
+      <img src="img/logit-bias-step.png" alt="The model's scores for every possible next word: on its own it picks the advanced word, and after the bias is applied it picks the beginner word instead">
+    </div>
+    <figcaption>
+      The left bar graph shows a model's base probabilities; the right shows them after
+      logit bias is applied.
+    </figcaption>
+  </figure>
+
+  <p>
+    So how did I actually use logit bias? Two details matter here: the token bias map
+    and the AI provider. To build the map, I scanned all the tokens in the model's
+    tokenizer vocabulary and sorted them into two groups: tokens whose characters all
+    fall inside the target HSK level, and tokens that form words/phrases above that
+    level. That second group matters because many advanced words are combinations of
+    beginner characters. For the provider, I used Fireworks AI running DeepSeek V4
+    Flash, the only place where there was no practical cap on a bias map this big
+    (~22,000 tokens).
+  </p>
+
+  <p>
+    Once those two things were settled, I had to figure out how much bias to apply.
+    After testing out many different values, I ended up with a ±2.5 bias value: a
+    positive +2.5 on the in-level tokens to make them roughly 12 times more likely to
+    get picked, and a negative −2.5 on the above-level tokens to make them less likely.
+    I found that below 2.5, not enough words got simplified. Above it, the model started
+    reaching for clumsy substitutions, turning 敏捷 ("agile") into 快 ("fast") and 沉浸
+    ("immersed") into 喜欢 ("like") in places where the harder word was the right one.
+  </p>
+
+  <p>
+    Now that the dialogue is simplified enough to read, it needs to be placed onto the
+    images.
+  </p>
+
+  <h2>Erasing, covering, and rendering new text</h2>
+
+  <p>
+    For the output chapter to actually look nice, the original text needs to be either
+    covered or erased.
+  </p>
+
+  <figure>
+    <div class="fig-panel">
+      <img src="img/erase-before-after.webp" alt="The same page shown three ways: original, with the dialogue erased, and with the simplified text rendered back in">
+    </div>
+    <figcaption>
+      The same page from the OCR section, taken through the full swap. The sound effects
+      survive because the filters dropped them earlier, so they were never marked for
+      removal.
+    </figcaption>
+  </figure>
+
+  <p>
+    To do this, I use the bounding boxes from my OCR to select the areas where I'll
+    either erase the text or cover it. Text is erased with LaMa when the background
+    isn't a solid color, and it's covered when the background is solid. LaMa is an AI
+    inpainting model that fills an erased region with plausible background art, similar
+    to Photoshop's content-aware fill.
+  </p>
+
+  <p>
+    Determining whether the background is solid is as simple as sampling a small set of
+    pixels and checking what fraction of them match the median color.
+  </p>
+
+  <figure>
+    <div class="fig-panel">
+      <img src="img/ring-sampling.webp" alt="Sampling the strips beside a text box to decide whether to cover it or erase it">
+    </div>
+    <figcaption>
+      Anything that hits 95% or higher gets covered with a solid color. The speech
+      bubble on the left is a clean 100%. The text sitting on artwork on the right only
+      reaches 49%, so it goes to LaMa instead.
+    </figcaption>
+  </figure>
+
+  <p>
+    On a solid background, covering and LaMa create the same visual result, but covering
+    the text is much more efficient. For text placed on top of artwork, LaMa looks far
+    better, since it can predict what the background should be.
+  </p>
+
+  <figure>
+    <div class="fig-panel">
+      <img src="img/cover-vs-lama.webp" alt="The same text region covered with a solid color and erased with LaMa">
+    </div>
+  </figure>
+
+  <p>
+    Once the original text is either covered or erased, new text needs to be generated.
+    This step is as simple as taking the bounding box from the OCR and using it like a
+    text box for the simplified text.
+  </p>
+
+  <h2>Where it stands</h2>
+
+  <p>
+    As of today, HSK Manga has simplified over 500 chapters. In this blog post I only
+    mentioned the general functionality of the pipeline, but there are many other
+    features available such as pinyin, definitions, and audio. My project still isn't
+    finished though. Comments, emails, or the form at
+    <a href="/feedback">hskmanga.com/feedback</a> are highly appreciated. I read
+    everything! I'm always looking to improve HSK Manga, whether that's simplification
+    quality, more features, or a better interface.
+  </p>
+
+</main>
+
+<footer class="site-footer">
+  <a href="/">Home</a>
+  <a href="/feedback">Feedback</a>
+  <a href="/privacy.html">Privacy</a>
+  <a href="/terms.html">Terms</a>
+  <a href="mailto:hskmanga@gmail.com">Contact</a>
+</footer>
+
+</body>
+</html>

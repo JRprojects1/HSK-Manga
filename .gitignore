@@ -1,0 +1,45 @@
+# Dependencies & build output
+node_modules/
+dist/
+
+# Secrets — copy .env.example to .env and fill it in
+.env
+.env.*
+!.env.example
+
+# Large downloads (see README → "Data files")
+data/cedict_ts.u8
+data/dsv4-tokenizer.json
+
+# Runtime state written by the server. Several files contain user data
+# (emails, sessions, library entries) and must never be committed.
+data/users.json
+data/sessions.json
+data/library.json
+data/email-codes.json
+data/submission-history.json
+data/spend-cap.json
+data/gemini-usage.json
+data/job-metrics.json
+data/title-cache.json
+data/events.jsonl
+data/metrics-weekly.json
+data/word-library/
+
+# Generated output, caches, logs
+outputs/
+webtoon-downloads/
+test-output/
+debug-output/
+.ocr-cache/
+*.log
+logs/
+__pycache__/
+
+# Local tool state
+.claude/settings.local.json
+.mcp.json
+
+# OS files
+.DS_Store
+Thumbs.db

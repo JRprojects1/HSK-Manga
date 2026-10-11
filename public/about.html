@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About HSK Manga</title>
+  <meta name="description" content="HSK Manga is built independently by Jerry Rao, a high school self-learner. Here's why it exists and how to reach out.">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23d9683f'/%3E%3Cg fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6h5a3 3 0 0 1 3 3v10a2.2 2.2 0 0 0-2.2-2.2H4z'/%3E%3Cpath d='M20 6h-5a3 3 0 0 0-3 3v10a2.2 2.2 0 0 1 2.2-2.2H20z'/%3E%3C/g%3E%3C/svg%3E">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://hskmanga.com/about">
+  <meta property="og:title" content="About HSK Manga">
+  <meta property="og:description" content="A tool that rewrites manga dialogue into HSK 1-4 vocabulary so Chinese learners can read at their actual level. Built independently by a high school self-learner.">
+  <meta property="og:image" content="https://hskmanga.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Nunito:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .about-wrap { max-width: 720px; margin: 0 auto; padding: 60px 22px 80px; }
+
+    .about-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px; border: 1px solid var(--border);
+      border-radius: 999px; font-size: 13px; color: var(--text-2);
+      background: var(--panel); font-weight: 700; margin-bottom: 22px;
+    }
+    .about-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+    .about-hero h1 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(36px, 5vw, 56px);
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      font-weight: 500;
+      margin-bottom: 18px;
+    }
+    .about-hero h1 em { font-style: italic; font-weight: 400; color: var(--accent-h); }
+    .about-hero .lede {
+      font-size: 18.5px; color: var(--text-2); line-height: 1.55;
+      max-width: 600px;
+    }
+
+    .founder-section {
+      margin-top: 64px;
+      padding: 36px 36px 40px;
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 20px;
+    }
+    .founder-section h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 26px; font-weight: 500;
+      letter-spacing: -0.015em;
+      margin-bottom: 14px;
+    }
+    .founder-section p {
+      font-size: 15.5px; color: var(--text-2); line-height: 1.65;
+      margin-bottom: 14px;
+    }
+    .founder-section p:last-child { margin-bottom: 0; }
+    .founder-section strong { color: var(--text); font-weight: 700; }
+    .founder-section a { color: var(--accent-h); text-decoration: underline; font-weight: 600; }
+
+    .sig {
+      margin-top: 22px; padding-top: 22px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .sig-avatar {
+      width: 44px; height: 44px; border-radius: 999px;
+      background: var(--accent-sf); color: var(--accent-h);
+      display: grid; place-items: center;
+      font-family: 'Fraunces', serif; font-weight: 600; font-size: 18px;
+    }
+    .sig-text { font-size: 14px; color: var(--text-2); line-height: 1.4; }
+    .sig-text strong { color: var(--text); font-weight: 700; }
+
+    .section-eyebrow {
+      font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent-h); font-weight: 700;
+      margin-bottom: 14px;
+    }
+    h2.section-h {
+      font-family: 'Fraunces', serif;
+      font-size: 28px; font-weight: 500;
+      letter-spacing: -0.015em; line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .section-lede {
+      font-size: 15.5px; color: var(--text-2); line-height: 1.55;
+      margin-bottom: 28px;
+    }
+
+    .faq { margin-top: 72px; }
+    .faq-list {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 18px; overflow: hidden;
+    }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q {
+      width: 100%; padding: 20px 26px;
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      text-align: left;
+      font-family: 'Fraunces', serif;
+      font-size: 18px; font-weight: 500;
+      color: var(--text);
+      transition: background .15s;
+    }
+    .faq-q:hover { background: var(--panel-2); }
+    .faq-toggle {
+      flex-shrink: 0;
+      width: 26px; height: 26px; border-radius: 999px;
+      background: var(--accent-sf); color: var(--accent-h);
+      display: grid; place-items: center;
+      font-size: 16px; font-weight: 700;
+      transition: transform .25s;
+    }
+    .faq-item[open] .faq-toggle { transform: rotate(45deg); }
+    .faq-a {
+      padding: 0 26px 22px;
+      font-size: 14.5px; line-height: 1.65; color: var(--text-2);
+    }
+    .faq-a a { color: var(--accent-h); text-decoration: underline; font-weight: 600; }
+
+    .contact { margin-top: 72px; }
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    }
+    .contact-card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 16px; padding: 22px 22px;
+      text-decoration: none; color: inherit;
+      display: flex; flex-direction: column; gap: 6px;
+      transition: transform .15s, border-color .15s, box-shadow .15s;
+    }
+    .contact-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: var(--shadow-lg);
+    }
+    .contact-card .label {
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); font-weight: 700;
+    }
+    .contact-card h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 20px; font-weight: 500;
+    }
+    .contact-card p {
+      font-size: 13.5px; color: var(--text-2); line-height: 1.5;
+    }
+
+    .closing {
+      margin-top: 56px; text-align: center;
+    }
+    .closing .hero-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px;
+      background: var(--accent); color: #fff;
+      font-size: 15px; font-weight: 700;
+      border-radius: 999px; text-decoration: none;
+      transition: background .15s, transform .15s;
+    }
+    .closing .hero-cta:hover { background: var(--accent-h); transform: translateY(-1px); }
+    .closing .hero-cta .icon { width: 16px; height: 16px; stroke-width: 2.4; }
+
+    /* Try-free CTA in the about page top bar — matches the landing nav's pill. */
+    .top-bar-cta {
+      display: inline-flex; align-items: center;
+      background: var(--accent); color: #fff;
+      padding: 9px 18px; border-radius: 999px;
+      font: inherit; font-size: 14px; font-weight: 700;
+      text-decoration: none;
+      transition: background .15s, transform .15s;
+    }
+    .top-bar-cta:hover { background: var(--accent-h); transform: translateY(-1px); }
+
+    @media (max-width: 640px) {
+      .about-wrap { padding: 40px 18px 60px; }
+      .founder-section { padding: 26px 22px 30px; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .faq-q { font-size: 16px; padding: 18px 20px; }
+      .faq-a { padding: 0 20px 18px; }
+      .top-bar-cta { padding: 8px 14px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+<script>
+  var t = localStorage.getItem('theme');
+  if (t === 'dark' || (t === null && window.matchMedia('(prefers-color-scheme: dark)').matches))
+    document.body.classList.add('dark');
+</script>
+
+<header class="top-bar">
+  <a class="brand" href="/" aria-label="HSK Manga home">
+    <span class="brand-mark">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    </span>
+    <span class="brand-name">HSK Manga</span>
+  </a>
+  <a class="top-bar-cta" href="/start">Try free</a>
+</header>
+
+<main class="about-wrap">
+
+  <!-- Hero -->
+  <section class="about-hero">
+    <span class="about-eyebrow">
+      <span class="dot"></span>
+      About
+    </span>
+    <h1>Built for the moment Chinese learners <em>hit the wall.</em></h1>
+    <p class="lede">
+      HSK Manga is a small, independent tool that rewrites manhua dialogue in vocabulary
+      you've actually learned. Here's the problem it solves and how to reach the person
+      behind it.
+    </p>
+  </section>
+
+  <!-- Why this exists -->
+  <section class="founder-section">
+    <h2>Why this exists</h2>
+    <p>
+      For most Chinese learners, the leap from textbook exercises to real native content
+      is brutal. You spend a year studying, finally open a manhua you actually want to
+      read, and every paragraph hits you with five words two or three levels above where
+      you are. You stall. <strong>Most learners do.</strong> And most never recover the
+      momentum.
+    </p>
+    <p>
+      The usual fix is graded readers: short, simplified stories curated for each level.
+      They work, but they're a small library of made-for-learners content. You don't get
+      to read the things you'd read <em>for fun</em>, which is what makes language
+      learning stick.
+    </p>
+    <p>
+      HSK Manga removes the limit. Drop in any chapter from any scrollable manga site,
+      pick your HSK level, and the dialogue gets rewritten using only vocabulary at or
+      below that level. <strong>The plot stays. The art stays. The pacing stays.</strong>
+      Only the vocabulary changes, so you keep reading at a level that matches your
+      actual ability, on content you care about.
+    </p>
+    <p>
+      It's built independently by <strong>Jerry Rao</strong>, a high school self-learner,
+      runs on a small home GPU, and is built to stay cheap. No team, no investors, no
+      subscription model. It's free to use while the product finds its footing — just a
+      daily fair-use cap to keep the GPU alive.
+    </p>
+
+    <div class="sig">
+      <div class="sig-avatar">J</div>
+      <div class="sig-text">
+        <strong>Jerry Rao</strong><br>
+        Builder, sole maintainer · <a href="mailto:hskmanga@gmail.com">hskmanga@gmail.com</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact">
+    <div class="section-eyebrow">Reach out</div>
+    <h2 class="section-h">Two places to find me.</h2>
+    <p class="section-lede">I read every message. Bug reports and feature ideas both genuinely shape what gets built next.</p>
+
+    <div class="contact-grid">
+      <a class="contact-card" href="/feedback">
+        <span class="label">Feedback &amp; bugs</span>
+        <h3>/feedback</h3>
+        <p>The fastest way to reach me. Bug reports go straight to the top of the list.</p>
+      </a>
+      <a class="contact-card" href="mailto:hskmanga@gmail.com">
+        <span class="label">Direct email</span>
+        <h3>hskmanga@gmail.com</h3>
+        <p>For longer conversations, classroom inquiries, or anything else.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Closing CTA -->
+  <div class="closing">
+    <a href="/start" class="hero-cta">
+      Try a free chapter
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <a href="/">Home</a>
+  <a href="/feedback">Feedback</a>
+  <a href="/privacy.html">Privacy</a>
+  <a href="/terms.html">Terms</a>
+  <a href="mailto:hskmanga@gmail.com">Contact</a>
+</footer>
+
+</body>
+</html>
